@@ -1,15 +1,31 @@
-const mongoose = require('mongoose');
+const mysql = require('mysql');
 
-mongoose.set('debug', true); //display queries on console
-mongoose.Promise = Promise; //async func returns promises makesure we
-// can use Promise es2017
-mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost/warbler', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
+// =========
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: process.env.PASSWORD,
+    database: 'warbler',
+    multipleStatements: true
 });
 
-module.exports.User = require('./user');
-module.exports.Message = require('./message');
+connection.connect((err) => {
+    if (err) console.log(err.message);
+    else console.log('connection is successful');
+});
+
+module.exports = connection;
+
+// const { userTable } = require('./mysqlUser');
+
+// connection.query(userTable, (err, results, fields) => {
+//     if (err) console.log(err.message);
+//     else {
+//         console.log(results + "  " + fields);
+//     }
+//     connection.end();
+// })
 
 
+//==========

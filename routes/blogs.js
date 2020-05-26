@@ -3,13 +3,13 @@ const router = express.Router({ mergeParams: true });
 //allows us to excess the id in this router params
 
 // const {  } = require('../handlers/messages');
-const { createMessage, getMessage, deleteMessage } = require('../handlers/mysqlMessages');
+const { createBlog, getBlog, deleteBlog } = require('../handlers/blogs');
 
-router.route('/').post(createMessage);
+router.route('/').post(createBlog);
 
 router
-    .route('/:message_id')
-    .get(getMessage)
-    .delete(deleteMessage);
+    .route('/:blog_id')
+    .get(getBlog)
+    .delete(deleteBlog);
 
 module.exports = router;

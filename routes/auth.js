@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // const { signup, signin } = require('../handlers/auth');
-const register = require('../handlers/mysqlAuth');
+const register = require('../handlers/auth');
 
 
 

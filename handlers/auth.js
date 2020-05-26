@@ -1,76 +1,93 @@
-const db = require('../models');
 const jwt = require('jsonwebtoken');
+const connection = require('../models');
+const bcrypt = require('bcrypt');
 
-exports.signin = async function (req, res, next) {
-    //finding user
-    //check if there password matches or not 
-    //if if all matches
-    //log them in and set cookies and session in the browser
-    //but in our case send json web token
-    try {
-        let user = await db.User.findOne({
-            email: req.body.email
-        });
-        let { id, username, profileImageUrl } = user;
-        let isMatch = await user.comparePassword(req.body.password);
-        if (isMatch) {
-            let token = jwt.sign({
-                id,
-                username,
-                profileImageUrl
-            }, process.env.SECRET_KEY);
 
-            return res.status(200).json({
-                id,
-                username,
-                profileImageUrl,
-                token
-            });
-        } else {
-            return next({
+
+module.exports.signin = function (req, res, next) {
+    let queryString = `SELECT * FROM users WHERE email='${req.body.email}'`;
+    connection.query(queryString, async function (error, results, fields) {
+        if (error) {
+            next({
                 status: 400,
-                message: 'Invalid Email/Password'
+                message: 'internal database error'
             });
         }
-    } catch (err) {
-        return next({
-            status: 400,
-            message: 'Invalid Email/Password'
-        });
-    }
-}
-
-exports.signup = async function (req, res, next) {
-    try {
-        //create a user
-        let user = await db.User.create(req.body);
-
-        let { id, username, profileImageUrl } = user;
-
-        //create a token(signing a token)
-        let token = jwt.sign({
-            id,
-            username,
-            profileImageUrl
-        }, process.env.SECRET_KEY);
-        //process.env.SECRET_KEY
-
-        return res.status(200).json({
-            id,
-            username,
-            profileImageUrl,
-            token
-        });
-    } catch (err) {
-        //see what kind of error
-        //otherwise just send back generic 400
-
-        if (err.code === 11000) {
-            err.message = "sorry,that username and/or email is taken";
+        else {
+            if (results.length > 0) {
+                let isMatch = await bcrypt.compare(req.body.password, results[0].password)
+                if (isMatch) {
+                    let token = jwt.sign({
+                        id: results[0].id,
+                        username: results[0].username,
+                        profileImageUrl: results[0].profileImageUrl
+                    }, process.env.SECRET_KEY);
+                    res.status(200).json({
+                        id: results[0].id,
+                        username: results[0].username,
+                        profileImageUrl: results[0].profileImageUrl,
+                        token
+                    });
+                }
+                else {
+                    next({
+                        status: 400,
+                        message: 'enter correct password'
+                    });
+                }
+            }
+            else {
+                next({
+                    status: 400,
+                    message: 'enter correct email'
+                });
+            }
         }
+    })
+
+}
+module.exports.signup = async function (req, res, next) {
+    if (!req.body.password || !req.body.username || !req.body.email) {
         return next({
-            status: 400,
-            message: err.message
+            status: 401,
+            message: 'all fields must be provided'
         });
     }
+    let hashedPassword = await bcrypt.hash(req.body.password, 10);
+    let user = {
+        email: req.body.email,
+        username: req.body.username,
+        password: hashedPassword,
+        profileImageUrl: (!req.body.profileImageUrl) ? 'https://i.stack.imgur.com/34AD2.jpg' : req.body.profileImageUrl
+    }
+    connection.query('INSERT INTO users SET ?', user, (error, results, fields) => {
+        if (error) {
+            next({
+                status: 400,
+                message: error.message
+            });
+        }
+        else {
+            let id = results.insertId;
+            connection.query(`SELECT id ,username,profileImageUrl FROM users WHERE id=${id}`, (error, results, fields) => {
+                if (error) {
+                    next(error);
+                }
+                else {
+                    let { id, username, profileImageUrl } = results[0];
+                    let token = jwt.sign({
+                        id,
+                        username,
+                        profileImageUrl
+                    }, process.env.SECRET_KEY);
+                    res.status(200).json({
+                        id,
+                        username,
+                        profileImageUrl,
+                        token
+                    });
+                }
+            });
+        }
+    });
 }

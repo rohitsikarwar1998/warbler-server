@@ -1,22 +1,22 @@
-const connection = require('../models/mysqlIndex');
+const connection = require('../models');
 const fetchQuery = require('./queryFetcher');
 
-exports.createMessage = async function (req, res, next) {
+exports.createBlog = async function (req, res, next) {
     try {
-        let newMessage = {
+        let newBlog = {
             text: req.body.text,
             user_id: req.params.id,
             created_at: new Date(),
             updated_at: new Date()
         }
-        let query = 'INSERT INTO messages SET ?';
+        let query = 'INSERT INTO blogs SET ?';
         let userQuery = `SELECT * FROM users WHERE id=${req.params.id}`;
         let results = await Promise.all([
-            fetchQuery.fetchWithValues(query, connection, newMessage),
+            fetchQuery.fetchWithValues(query, connection, newBlog),
             fetchQuery.fetch(userQuery, connection)
         ]);
 
-        let foundMessage = {
+        let foundBlog = {
             id: results[0].insertId,
             text: req.body.text,
             user: {
@@ -26,26 +26,26 @@ exports.createMessage = async function (req, res, next) {
             }
         }
 
-        return res.status(200).json(foundMessage);
+        return res.status(200).json(foundBlog);
     } catch (err) {
         return next(err);
     }
 }
 
 // /api/users/:id/messages/:message_id
-exports.getMessage = async function (req, res, next) {
+exports.getBlog = async function (req, res, next) {
     try {
-        let query = `SELECT * FROM messages WHERE id=${req.params.message_id}`;
+        let query = `SELECT * FROM blogs WHERE id=${req.params.message_id}`;
         let foundMessage = await fetchQuery.fetch(query, connection);
         return res.status(200).json(foundMessage[0]);
     } catch (err) {
         return next(err);
     }
 }
-exports.deleteMessage = async function (req, res, next) {
+exports.deleteBlog = async function (req, res, next) {
     try {
-        let queryDelete = `DELETE FROM messages WHERE id=${req.params.message_id}`;
-        let queryFind = `SELECT * FROM messages WHERE id=${req.params.message_id}`;
+        let queryDelete = `DELETE FROM blogs WHERE id=${req.params.blog_id}`;
+        let queryFind = `SELECT * FROM blogs WHERE id=${req.params.blog_id}`;
         let foundMessage = await fetchQuery.fetch(queryFind, connection);
         await fetchQuery.fetch(queryDelete, connection);
         return res.status(200).json(foundMessage[0]);
@@ -54,11 +54,11 @@ exports.deleteMessage = async function (req, res, next) {
     }
 }
 
-exports.getAllMessages = async function (req, res, next) {
+exports.getAllBlogs = async function (req, res, next) {
     try {
         let query = `
             SELECT
-                messages.id,
+                blogs.id,
                 text,
                 updated_at,
                 user_id,
@@ -67,10 +67,10 @@ exports.getAllMessages = async function (req, res, next) {
             FROM
                 users 
                 JOIN
-                messages 
-                ON users.id = messages.user_id 
+                blogs 
+                ON users.id = blogs.user_id 
             ORDER BY
-                messages.created_at DESC
+                blogs.created_at DESC
         `;
         let results = await fetchQuery.fetch(query, connection);
         return res.status(200).json(results);

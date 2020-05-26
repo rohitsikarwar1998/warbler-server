@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 // const db = require('./models');
 const errorHandler = require('./handlers/error');
 const authRoutes = require('./routes/auth');
-const messageRoutes = require('./routes/messages');
-const getRoutes = require('./routes/getMessages');
+const blogRoutes = require('./routes/blogs');
+const getRoutes = require('./routes/getBlogs');
 const { loginRequired, ensureCorrectUser } = require('./middlewares/auth');
 
 
@@ -20,12 +20,12 @@ app.use(bodyParser.json());
 
 
 app.use('/api/auth', authRoutes);
-app.use('/api/messages',loginRequired,getRoutes);
+app.use('/api/blogs',loginRequired,getRoutes);
 app.use(
-    '/api/users/:id/messages',
+    '/api/users/:id/blogs',
     loginRequired,
     ensureCorrectUser,
-    messageRoutes
+    blogRoutes
 );
 
 

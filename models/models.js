@@ -13,9 +13,9 @@ exports.userTable = `CREATE TABLE IF NOT EXISTS users(
 // =====================================//
 
 exports.messageTable = `
-CREATE TABLE IF NOT EXISTS messages(
+CREATE TABLE IF NOT EXISTS blogs(
     id INT PRIMARY key auto_increment, 
-    text VARCHAR(255) NOT NULL, 
+    text TEXT NOT NULL, 
     user_id INT, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     updated_at TIMESTAMP, 

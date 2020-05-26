@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 
-const {getAllMessages} =require('../handlers/mysqlMessages');
+const {getAllBlogs} =require('../handlers/blogs');
 
 router
-    .get('/',getAllMessages);
+    .get('/',getAllBlogs);
 
 module.exports = router;
