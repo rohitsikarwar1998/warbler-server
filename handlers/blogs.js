@@ -35,7 +35,9 @@ exports.createBlog = async function (req, res, next) {
 // /api/users/:id/messages/:message_id
 exports.getBlog = async function (req, res, next) {
     try {
-        let query = `SELECT * FROM blogs WHERE id=${req.params.message_id}`;
+        let query = `SELECT b.*,u.username,u.profileImageUrl 
+                     FROM blogs b inner join users u on b.user_id=u.id 
+                     WHERE b.id=${req.params.blog_id}`;
         let foundMessage = await fetchQuery.fetch(query, connection);
         return res.status(200).json(foundMessage[0]);
     } catch (err) {
@@ -78,3 +80,4 @@ exports.getAllBlogs = async function (req, res, next) {
         return next(err);
     }
 }
+

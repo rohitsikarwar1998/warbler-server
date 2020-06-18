@@ -7,6 +7,7 @@ const errorHandler = require('./handlers/error');
 const authRoutes = require('./routes/auth');
 const blogRoutes = require('./routes/blogs');
 const getRoutes = require('./routes/getBlogs');
+const followerRoutes = require('./routes/followerRoutes');
 const { loginRequired, ensureCorrectUser } = require('./middlewares/auth');
 
 
@@ -26,6 +27,12 @@ app.use(
     loginRequired,
     ensureCorrectUser,
     blogRoutes
+);
+app.use(
+    '/api/users/:id/:user_id',
+    loginRequired,
+    ensureCorrectUser,
+    followerRoutes
 );
 
 
