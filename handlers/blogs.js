@@ -58,7 +58,9 @@ exports.deleteBlog = async function (req, res, next) {
 
 exports.getAllBlogs = async function (req, res, next) {
     try {
-        let query = `
+
+        const text = req.query.text;
+        let query = text ? `
             SELECT
                 blogs.id,
                 text,
@@ -71,9 +73,26 @@ exports.getAllBlogs = async function (req, res, next) {
                 JOIN
                 blogs 
                 ON users.id = blogs.user_id 
+            WHERE blogs.text like '%${text.substring(1, text.length - 1)}%'
             ORDER BY
                 blogs.created_at DESC
-        `;
+        `:
+            `
+        SELECT
+            blogs.id,
+            text,
+            updated_at,
+            user_id,
+            username,
+            profileImageUrl 
+        FROM
+            users 
+            JOIN
+            blogs 
+            ON users.id = blogs.user_id 
+        ORDER BY
+            blogs.created_at DESC
+    `;
         let results = await fetchQuery.fetch(query, connection);
         return res.status(200).json(results);
     } catch (err) {
