@@ -1,7 +1,7 @@
-module.exports.fetchWithValues=async function fetchQuery(query,connection,values){
-    return new Promise((resolve,reject)=>{
-        connection.query(query,values,(error,results,fields)=>{
-            if(error){
+module.exports.fetchWithValues = async function fetchQuery(query, connection, values) {
+    return new Promise((resolve, reject) => {
+        connection.query(query, values, (error, results, fields) => {
+            if (error) {
                 reject(error);
             }
             else {
@@ -11,10 +11,10 @@ module.exports.fetchWithValues=async function fetchQuery(query,connection,values
     });
 }
 
-module.exports.fetch=async function fetch(query,connection){
-    return new Promise((resolve,reject)=>{
-        connection.query(query,(error,results,fields)=>{
-            if(error){
+module.exports.fetch = async function fetch(query, connection) {
+    return new Promise((resolve, reject) => {
+        connection.query(query, (error, results, fields) => {
+            if (error) {
                 reject(error);
             }
             else {

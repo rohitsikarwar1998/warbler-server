@@ -9,6 +9,7 @@ const blogRoutes = require('./routes/blogs');
 const getRoutes = require('./routes/getBlogs');
 const followerRoutes = require('./routes/followerRoutes');
 const { loginRequired, ensureCorrectUser } = require('./middlewares/auth');
+const userInfo = require('./routes/users');
 
 
 const app = express();
@@ -21,7 +22,7 @@ app.use(bodyParser.json());
 
 
 app.use('/api/auth', authRoutes);
-app.use('/api/blogs',loginRequired,getRoutes);
+app.use('/api/blogs', loginRequired, getRoutes);
 app.use(
     '/api/users/:id/blogs',
     loginRequired,
@@ -29,12 +30,17 @@ app.use(
     blogRoutes
 );
 app.use(
+    '/api/users/:id/profile',
+    loginRequired,
+    ensureCorrectUser,
+    userInfo
+);
+app.use(
     '/api/users/:id/:user_id',
     loginRequired,
     ensureCorrectUser,
     followerRoutes
 );
-
 
 
 app.use(function (req, res, next) {

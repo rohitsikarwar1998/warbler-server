@@ -81,3 +81,35 @@ exports.getAllBlogs = async function (req, res, next) {
     }
 }
 
+exports.getSavedBlogs = async function (req, res, next) {
+    try {
+        let query = `
+            select temp.*,u.username,u.profileImageUrl
+            from 
+                (select b.* ,s.saved_at,s.user_id as cur_user_id from savedBlogs s 
+                inner join blogs b
+                on s.blog_id=b.id) temp
+            inner join users u on u.id=temp.cur_user_id
+            where u.id=${req.params.id};
+        `;
+        let results = await fetchQuery.fetch(query, connection);
+        return res.status(200).json(results);
+    } catch (err) {
+        return next(err);
+    }
+}
+exports.getPublishedBlogs = async function (req, res, next) {
+    try {
+        let query = `
+            select b.*,u.username,u.profileImageUrl
+            from blogs b
+            inner join users u on b.user_id=u.id
+            where u.id=${req.params.id};
+        `;
+        let results = await fetchQuery.fetch(query, connection);
+        return res.status(200).json(results);
+    } catch (err) {
+        return next(err);
+    }
+}
+
