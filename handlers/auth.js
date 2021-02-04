@@ -3,7 +3,16 @@ const connection = require('../models');
 const bcrypt = require('bcrypt');
 
 
-
+/*
+     1.Extract email from body object. 
+     2.Fetch user from database whose email matches.
+       if didn't find any user then we'll send message
+       to user like "please enter the correct email".
+     3.then we match input password with stored password
+     4.if password matched then we build token and then 
+       send it to client side.
+     5.other we'll send error message. 
+*/
 module.exports.signin = function (req, res, next) {
     let queryString = `SELECT * FROM users WHERE email='${req.body.email}'`;
     connection.query(queryString, async function (error, results, fields) {
@@ -46,6 +55,17 @@ module.exports.signin = function (req, res, next) {
     })
 
 }
+
+
+/*
+ 
+    1.Validate all the user inputs.
+    2.Encrypt the password 
+    3.Save user into the database 
+    4.Make token and then send it to client 
+      as a response
+
+*/
 module.exports.signup = async function (req, res, next) {
     if (!req.body.password || !req.body.username || !req.body.email) {
         return next({
